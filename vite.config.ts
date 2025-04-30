@@ -6,6 +6,6 @@ export default defineConfig({
   define: {
     'process.env.VITE_BASE_URL': JSON.stringify(process.env.VITE_BASE_URL),
   },
-  base: process.env.VITE_BASE_URL || '/',
+  base: '/magic-helper-admin/',
   plugins: [vue()],
 })
