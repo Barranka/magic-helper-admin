@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "types": [
+      "vite/client",
+      "vue-router",
+      "node"
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "target": "ES2020",  // или ESNext, если хочешь более новую версию
+    "module": "ESNext",  // или Node16 или Nodenext, если ты используешь Node.js
+    "moduleResolution": "Node",
+    "lib": ["ES2020", "DOM"],  // или добавь "ESNext", если используешь последние стандарты
+    "esModuleInterop": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
