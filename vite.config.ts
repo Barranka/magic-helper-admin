@@ -3,9 +3,13 @@ import vue from '@vitejs/plugin-vue'
 
 // https://vite.dev/config/
 export default defineConfig({
-  define: {
-    'process.env.VITE_BASE_URL': JSON.stringify(process.env.VITE_BASE_URL),
-  },
-  base: '/magic-helper-admin/',
   plugins: [vue()],
+  base: '/magic-helper-admin/', // важно для GitHub Pages
+  build: {
+    outDir: 'docs', // или 'dist', если используешь root
+    emptyOutDir: true,
+    rollupOptions: {
+      input: 'index.html'
+    }
+  }
 })

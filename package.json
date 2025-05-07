@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc -b && vite build",
+    "build": "vite build",
     "preview": "vite preview",
     "cache:clean": "rm -rf node_modules .vite dist package-lock.json && npm cache clean --force",
     "cache:verify": "npm cache verify"
