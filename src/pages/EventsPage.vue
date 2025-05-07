@@ -7,7 +7,7 @@
     NFlex,
     NLayoutContent,
     NSpace,
-    NH1,
+    NH4,
     NText,
   } from 'naive-ui';
   import { ref, computed } from 'vue';
@@ -19,7 +19,7 @@
 
   const events = ref(storeEvents);
   const isModalVisible = ref(false);
-  const modalFormType = ref('');
+  const modalFormType = ref('') as any;
   const modalFormData = ref({});
 
   const openModal = (type: string, event = {}) => {
@@ -57,7 +57,7 @@
         size="medium"
         type="info"
       >
-        + Дуйлик
+        + Дейлик
       </n-button>
       <n-button
         @click="openModal('tournament')"
@@ -69,17 +69,15 @@
     </n-flex>
 
     <n-layout>
-      <div style="padding-left: 16px">
-        <n-h1
-          prefix="bar"
-          style="padding: 16px"
-        >
-          <n-text type="primary"> Список событий </n-text>
-        </n-h1>
-      </div>
+      <n-h4
+        prefix="bar"
+        type="info"
+      >
+        <n-text type="info"> Список событий </n-text>
+      </n-h4>
       <n-layout-content
         ref="contentRef"
-        content-style="padding: 16px;"
+        content-style="padding: 0 16px;"
         :native-scrollbar="false"
       >
         <n-list
