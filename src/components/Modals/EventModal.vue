@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { NModal, useNotification, NButton, NFlex, NDivider } from 'naive-ui';
-  import { computed, watch } from 'vue';
+  import { computed, watch, ref } from 'vue';
   import { useStore } from 'vuex';
 
   import DailyEventForm from '../Forms/DailyEventForm.vue';
@@ -21,13 +21,40 @@
     (event: 'reload'): void;
   }>();
 
+  const formComponentRef = ref();
+
   const storeEvents = computed(() => store.getters.getAllEventsData);
   const showModal = computed(() => props.isVisible);
   const formDailyData = computed(() => store.getters.getDailyEventData);
-  const formTournamentData = computed(
-    () => store.getters.getTournamentEventData
-  );
+  const formTournamentData = computed(() => {
+    return store.getters.getTournamentEventData;
+  });
   const mode = computed(() => store.getters.getMode);
+  const modeLabel = computed(() => {
+    return mode.value === 'edit' ? 'Редактировать' : 'Создать';
+  });
+
+  const componentName = computed(() => {
+    switch (props.type) {
+      case 'daily':
+        return DailyEventForm;
+      case 'tournament':
+        return TournamentEventForm;
+      default:
+        return undefined;
+    }
+  });
+
+  const componentTitle = computed(() => {
+    switch (props.type) {
+      case 'daily':
+        return `${modeLabel.value} дейлик`;
+      case 'tournament':
+        return `${modeLabel.value} турнир`;
+      default:
+        return undefined;
+    }
+  });
 
   watch(
     () => props.id,
@@ -77,35 +104,45 @@
   };
 
   const submitCallback = async () => {
-    if (mode.value === 'edit') {
-      editEvent();
-
-      return;
-    }
-
     try {
-      if (props.type === 'daily') {
-        await store.dispatch('createDailyData', formDailyData.value);
-      } else {
-        await store.dispatch('createTournamentData', formTournamentData.value);
+      const valid = await formComponentRef.value?.validateForm();
+
+      if (!valid) return;
+
+      if (mode.value === 'edit') {
+        editEvent();
+
+        return;
       }
 
-      notification.success({
-        content: 'Событие успешно созданно!',
-        duration: 2500,
-        keepAliveOnHover: true,
-      });
+      try {
+        if (props.type === 'daily') {
+          await store.dispatch('createDailyData', formDailyData.value);
+        } else {
+          await store.dispatch(
+            'createTournamentData',
+            formTournamentData.value
+          );
+        }
 
-      cancelCallback();
-      emit('reload');
+        notification.success({
+          content: 'Событие успешно созданно!',
+          duration: 2500,
+          keepAliveOnHover: true,
+        });
+
+        cancelCallback();
+        emit('reload');
+      } catch (error: any) {
+        notification.error({
+          content: error.response,
+          meta: error.response,
+          duration: 2500,
+          keepAliveOnHover: true,
+        });
+      }
     } catch (error: any) {
       console.log(error.response, 'error');
-      notification.error({
-        content: error.response,
-        meta: error.response,
-        duration: 2500,
-        keepAliveOnHover: true,
-      });
     }
   };
 
@@ -114,28 +151,6 @@
     store.dispatch('clearTournamentEventData');
     emit('closeModal');
   };
-
-  const componentName = computed(() => {
-    switch (props.type) {
-      case 'daily':
-        return DailyEventForm;
-      case 'tournament':
-        return TournamentEventForm;
-      default:
-        return undefined;
-    }
-  });
-
-  const componentTitle = computed(() => {
-    switch (props.type) {
-      case 'daily':
-        return 'Создать дейлик';
-      case 'tournament':
-        return 'Создать турнир';
-      default:
-        return undefined;
-    }
-  });
 </script>
 
 <template>
@@ -149,7 +164,10 @@
   >
     <n-divider style="margin-top: 0" />
 
-    <component :is="componentName" />
+    <component
+      ref="formComponentRef"
+      :is="componentName"
+    />
 
     <n-divider style="margin-bottom: 0" />
 

@@ -8,7 +8,6 @@
     NLayoutContent,
     NSpace,
     NH3,
-    NH4,
     NText,
     NEmpty,
     NSpin,
@@ -20,12 +19,7 @@
   import { ref, computed } from 'vue';
   import axios from 'axios';
   import { useStore } from 'vuex';
-  import {
-    deleteDailyEvent,
-    updateDailyEvent,
-    deleteTournamentEvent,
-    updateTournamentEvent,
-  } from '../services/api';
+  import { deleteDailyEvent, deleteTournamentEvent } from '../services/api';
   import { formatInfo } from '../components/Forms/index';
 
   const dialog = useDialog();
@@ -57,7 +51,6 @@
   };
 
   const deleteEvent = async (id: number, type: EventType) => {
-    console.log(type, 'type');
     try {
       type === 'daily'
         ? await deleteDailyEvent(id)
@@ -65,31 +58,6 @@
 
       notification.success({
         content: 'Событие успешно удалено!',
-        duration: 2500,
-        keepAliveOnHover: true,
-      });
-
-      loadEvents();
-    } catch (error: unknown) {
-      console.error('Error deleting event:', error);
-      if (axios.isAxiosError(error)) {
-        notification.error({
-          content: error.response?.data,
-          duration: 2500,
-          keepAliveOnHover: true,
-        });
-      }
-    }
-  };
-
-  const editEvent = async (id: number, event: EventItem) => {
-    try {
-      event.type === 'daily'
-        ? await updateDailyEvent(id, event)
-        : await updateTournamentEvent(id, event);
-
-      notification.success({
-        content: 'Событие успешно отредактировано!',
         duration: 2500,
         keepAliveOnHover: true,
       });
@@ -128,7 +96,10 @@
       vertical
       size="large"
     >
-      <n-flex justify="space-between">
+      <n-flex
+        v-if="events.length"
+        justify="space-between"
+      >
         <n-h3
           prefix="bar"
           type="success"
@@ -137,7 +108,7 @@
             :size="36"
             type="success"
           >
-            MagicHelper
+            MagicHelperAdmin
           </n-gradient-text>
         </n-h3>
         <n-flex style="padding: 16px">
@@ -146,14 +117,14 @@
             size="medium"
             type="info"
           >
-            + Дейлик
+            ➕ Дейлик
           </n-button>
           <n-button
             @click="openModal('tournament')"
             size="medium"
             type="info"
           >
-            + Турнир
+            ➕ Турнир
           </n-button>
         </n-flex>
       </n-flex>
@@ -161,9 +132,27 @@
       <n-empty
         v-if="!events.length && !isLoading"
         status="info"
-        title="Доступных событий нет"
-        description='Чтобы добавить новое событие нажмите кнопку для добавления "Дейлик" или "Турнир"'
+        description='Доступных событий нет. Чтобы добавить новое событие нажмите кнопку для добавления "Дейлик" или "Турнир"'
+        style="margin-top: 36px"
       >
+        <template #extra>
+          <n-flex style="padding: 16px">
+            <n-button
+              @click="openModal('daily')"
+              size="medium"
+              type="info"
+            >
+              + Дейлик
+            </n-button>
+            <n-button
+              @click="openModal('tournament')"
+              size="medium"
+              type="info"
+            >
+              + Турнир
+            </n-button>
+          </n-flex>
+        </template>
       </n-empty>
 
       <n-layout v-else>
@@ -216,7 +205,7 @@
                     </n-a>
                   </div>
                   <div>
-                    <n-text strong>Дата и время:</n-text> {{ event.day }},
+                    <n-text strong>📅 Дата и время:</n-text> {{ event.day }},
                     {{ event.time }}
                   </div>
                 </n-flex>
@@ -226,14 +215,14 @@
                     type="info"
                     secondary
                   >
-                    Edit
+                    Редактировать ✏️
                   </n-button>
                   <n-button
                     @click="handleConfirmDeleting(event.id, event.type)"
                     type="info"
                     secondary
                   >
-                    Delete
+                    Удалить 🗑️
                   </n-button>
                 </n-flex>
               </n-flex>

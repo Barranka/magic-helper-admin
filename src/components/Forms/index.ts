@@ -7,3 +7,22 @@ export const formatInfo: Record<EventFormat, { value: EventFormat; label: string
     premodern: { value: 'premodern', label: 'Премодерн' },
     other:     { value: 'other',     label: 'Другое' },
   };
+
+export type WeekDay =
+  | 'monday'
+  | 'tuesday'
+  | 'wednesday'
+  | 'thursday'
+  | 'friday'
+  | 'saturday'
+  | 'sunday';
+
+export const dayInfo: Record<WeekDay, { value: WeekDay; label: string }> = {
+  monday:    { value: 'monday',    label: 'Понедельник' },
+  tuesday:   { value: 'tuesday',   label: 'Вторник' },
+  wednesday: { value: 'wednesday', label: 'Среда' },
+  thursday:  { value: 'thursday',  label: 'Четверг' },
+  friday:    { value: 'friday',    label: 'Пятница' },
+  saturday:  { value: 'saturday',  label: 'Суббота' },
+  sunday:    { value: 'sunday',    label: 'Воскресенье' },
+};
