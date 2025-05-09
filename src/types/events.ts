@@ -12,6 +12,15 @@ type EventType = 'daily' | 'tournament';
 
 type EventMode = 'save' | 'edit';
 
+type WeekDay =
+  | 'monday'
+  | 'tuesday'
+  | 'wednesday'
+  | 'thursday'
+  | 'friday'
+  | 'saturday'
+  | 'sunday';
+
 interface EventId {
    id: number;
 }
@@ -20,8 +29,8 @@ interface DailyEvent {
    type: 'daily';
    city: string;
    place: string;
-   day: string | Date;
-   time: string;
+   day: WeekDay;
+   time: string | number;
    mapUrl: string;
    format: EventFormat;
    price: string;
@@ -35,8 +44,8 @@ interface TournamentEvent {
    banner:  File | string;
    city: string;
    place: string;
-   day: Date;
-   time: string;
+   day: WeekDay;
+   time: string | number;
    mapUrl: string;
    format: EventFormat;
    price: string;

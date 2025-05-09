@@ -27,24 +27,40 @@
         />
       </n-form-item>
 
-      <n-form-item
-        path="day"
-        label="День недели и время"
+      <n-grid
+        :x-gap="12"
+        :cols="2"
       >
-        <n-select
-          v-model:value="formData.day"
-          :options="daysOptions"
-          placeholder="День недели"
-          clearable
-          style="margin-right: 10px"
-        />
-        <n-time-picker
-          v-model:formatted-value="formData.time"
-          value-format="HH:mm:ss"
-          placeholder="Время"
-          clearable
-        />
-      </n-form-item>
+        <n-grid-item>
+          <n-form-item
+            path="day"
+            label="День недели"
+          >
+            <n-select
+              v-model:value="formData.day"
+              :options="daysOptions"
+              placeholder="День недели"
+              clearable
+            />
+          </n-form-item>
+        </n-grid-item>
+
+        <n-grid-item>
+          <n-form-item
+            path="time"
+            label="Время"
+          >
+            <n-time-picker
+              v-model:formatted-value="formData.time"
+              value-format="HH:mm"
+              format="HH:mm"
+              placeholder="Время"
+              clearable
+              style="width: 100%"
+            />
+          </n-form-item>
+        </n-grid-item>
+      </n-grid>
 
       <n-form-item
         path="mapUrl"
@@ -98,7 +114,8 @@
   import {
     NInput,
     NSelect,
-    NDatePicker,
+    NGrid,
+    NGridItem,
     NTimePicker,
     NForm,
     NFormItem,
@@ -130,7 +147,7 @@
     city: { required: true, message: 'Введите город', trigger: 'input' },
     place: { required: true, message: 'Введите место', trigger: ['input'] },
     day: { required: true, message: 'Выберите день', trigger: ['input'] },
-    time: { required: true, message: 'Выберите время', trigger: ['input'] },
+    time: { required: true, message: 'Выберите время', trigger: ['change'] },
     format: { required: true, message: 'Выберите формат', trigger: ['change'] },
     price: { required: true, message: 'Введите цену', trigger: ['input'] },
   };

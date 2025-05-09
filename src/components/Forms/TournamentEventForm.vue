@@ -28,42 +28,70 @@
         </n-upload>
       </n-form-item>
 
-      <n-form-item
-        path="city"
-        label="Город и место"
+      <n-grid
+        :x-gap="12"
+        :cols="2"
       >
-        <n-input
-          v-model:value="formData.city"
-          type="text"
-          placeholder="Город"
-          style="margin-right: 10px"
-        />
+        <n-grid-item>
+          <n-form-item
+            path="city"
+            label="Город"
+          >
+            <n-input
+              v-model:value="formData.city"
+              type="text"
+              placeholder="Город"
+            />
+          </n-form-item>
+        </n-grid-item>
+        <n-grid-item>
+          <n-form-item
+            path="place"
+            label="Место/Клуб"
+          >
+            <n-input
+              v-model:value="formData.place"
+              type="text"
+              placeholder="Место/Клуб"
+            />
+          </n-form-item>
+        </n-grid-item>
+      </n-grid>
 
-        <n-input
-          v-model:value="formData.place"
-          type="text"
-          placeholder="Место/Клуб"
-        />
-      </n-form-item>
-
-      <n-form-item
-        path="day"
-        label="День недели и время"
+      <n-grid
+        :x-gap="12"
+        :cols="2"
       >
-        <n-select
-          v-model:value="formData.day"
-          :options="daysOptions"
-          placeholder="День недели"
-          clearable
-          style="margin-right: 10px"
-        />
-        <n-time-picker
-          v-model:formatted-value="formData.time"
-          value-format="HH:mm:ss"
-          placeholder="Время"
-          clearable
-        />
-      </n-form-item>
+        <n-grid-item>
+          <n-form-item
+            path="day"
+            label="День недели"
+          >
+            <n-select
+              v-model:value="formData.day"
+              :options="daysOptions"
+              placeholder="День недели"
+              clearable
+            />
+          </n-form-item>
+        </n-grid-item>
+
+        <n-grid-item>
+          <n-form-item
+            path="time"
+            label="Время"
+          >
+            <n-time-picker
+              v-model:formatted-value="formData.time"
+              value-format="HH:mm"
+              format="HH:mm"
+              placeholder="Время"
+              clearable
+              style="width: 100%"
+            />
+          </n-form-item>
+        </n-grid-item>
+      </n-grid>
 
       <n-form-item
         path="mapUrl"
@@ -128,7 +156,8 @@
   import {
     NInput,
     NSelect,
-    NDatePicker,
+    NGrid,
+    NGridItem,
     NTimePicker,
     NForm,
     NFormItem,

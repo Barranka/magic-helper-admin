@@ -8,11 +8,13 @@
     NLayoutContent,
     NSpace,
     NH3,
+    NA,
     NText,
     NEmpty,
     NSpin,
     NGradientText,
     NTag,
+    NImage,
     useNotification,
     useDialog,
   } from 'naive-ui';
@@ -20,7 +22,7 @@
   import axios from 'axios';
   import { useStore } from 'vuex';
   import { deleteDailyEvent, deleteTournamentEvent } from '../services/api';
-  import { formatInfo } from '../components/Forms/index';
+  import { formatInfo, dayInfo } from '../components/Forms/index';
 
   const dialog = useDialog();
   const notification = useNotification();
@@ -179,7 +181,7 @@
             >
               <n-flex justify="space-between">
                 <n-flex vertical>
-                  <n-flex>
+                  <n-flex align="center">
                     <n-tag
                       :type="event.type === 'daily' ? 'info' : 'warning'"
                       :bordered="false"
@@ -195,18 +197,27 @@
                   </n-flex>
                   <div>{{ event.description }}</div>
                   <div>
-                    <n-text strong>Место проведения:</n-text> {{ event.city }},
-                    {{ event.place }},
+                    <n-text strong>Место проведения:</n-text>
+                    {{ event.city || '-' }}, {{ event.place || '-' }},
                     <n-a
                       :href="event.mapUrl"
                       target="_blank"
                     >
-                      <n-text underline>на карте 📍</n-text>
+                      <n-text underline>посмотреть на карте 📍</n-text>
                     </n-a>
                   </div>
                   <div>
-                    <n-text strong>📅 Дата и время:</n-text> {{ event.day }},
+                    <n-text strong>📅 День и время:</n-text>
+                    {{ dayInfo[event.day as WeekDay]?.label || '-' }},
                     {{ event.time }}
+                  </div>
+
+                  <div v-if="event.type === 'tournament' && event?.banner">
+                    <n-image :src="event?.banner[0]?.fullPath">
+                      <template #error>
+                        <n-text type="error">Баннер не прогрузился</n-text>
+                      </template>
+                    </n-image>
                   </div>
                 </n-flex>
                 <n-flex>

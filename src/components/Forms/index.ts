@@ -8,15 +8,6 @@ export const formatInfo: Record<EventFormat, { value: EventFormat; label: string
     other:     { value: 'other',     label: 'Другое' },
   };
 
-export type WeekDay =
-  | 'monday'
-  | 'tuesday'
-  | 'wednesday'
-  | 'thursday'
-  | 'friday'
-  | 'saturday'
-  | 'sunday';
-
 export const dayInfo: Record<WeekDay, { value: WeekDay; label: string }> = {
   monday:    { value: 'monday',    label: 'Понедельник' },
   tuesday:   { value: 'tuesday',   label: 'Вторник' },

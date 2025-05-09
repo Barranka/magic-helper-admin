@@ -83,15 +83,27 @@ export const store = createStore({
         dispatch('changeLoading', false);
       }
     },
-    async createDailyData({}, data) {
+    async createDailyData({dispatch}, data) {
+      dispatch('changeLoading', true);
+
       try {
         await createDailyEvent(data);
       } catch(error) {
         throw error;
+      } finally {
+        dispatch('changeLoading', false);
       }
     },
-    async updateDailyData({}, data) {
-      await updateDailyEvent(data.id, data);
+    async updateDailyData({dispatch}, data) {
+      dispatch('changeLoading', true);
+
+      try {
+        await updateDailyEvent(data.id, data);
+      } catch(error) {
+        throw error;
+      } finally {
+        dispatch('changeLoading', false);
+      }
     },
     async deleteDailyEvent({ dispatch }, id) {
       dispatch('changeLoading', true);
@@ -107,15 +119,26 @@ export const store = createStore({
     async clearDailyEventData({ commit }) {
       commit('clearDailyEventData');
     },
-    async createTournamentData({}, data) {
+    async createTournamentData({dispatch}, data) {
+      dispatch('changeLoading', true);
+
       try {
         await createTournamentEvent(data);
       } catch(error) {
         throw error;
+      } finally {
+        dispatch('changeLoading', false);
       }
     },
-    async updateTournamentData({}, data) {
-      await updateTournamentEvent(data.id, data);
+    async updateTournamentData({dispatch}, data) {
+      dispatch('changeLoading', true);
+      try {
+        await updateTournamentEvent(data.id, data);
+      } catch(error) {
+        throw error;
+      } finally {
+        dispatch('changeLoading', false);
+      }
     },
     async clearTournamentEventData({ commit }) {
       commit('clearTournamentEventData');
