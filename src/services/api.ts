@@ -1,7 +1,23 @@
 import axios from 'axios';
 
-const API_URL = '/api/events'; // пример URL API
+const headers = {
+  'Content-Type': 'application/json',
+};
 
-export const createEvent = (data) => axios.post(API_URL, data);
-export const updateEvent = (id, data) => axios.put(`${API_URL}/${id}`, data);
-export const deleteEvent = (id) => axios.delete(`${API_URL}/${id}`);
+// params для get (фильтрация) и delete
+const API_URL = 'https://us-central1-sampleMtgHelper.cloudfunctions.net/';
+
+// дейлики
+export const getDailyEvents = () => axios.get(`${API_URL}getDailyEvents`);
+export const createDailyEvent = (data: DailyEvent) => axios.post(`${API_URL}addDailyEvent`, JSON.stringify(data), { headers });
+export const updateDailyEvent= (id: number, data: DailyEvent) => axios.patch(`${API_URL}/editDailyEvent`, JSON.stringify(data), { headers });
+export const deleteDailyEvent = (id: number) => axios.delete(`${API_URL}/deleteDailyEvent?id=${id}`);
+
+// турниры
+export const getTournamentEvents = () => axios.get(`${API_URL}getTournamentEvents`);
+export const createTournamentEvent = (data: TournamentEvent) => axios.post(`${API_URL}addTournamentEvent`, JSON.stringify(data), { headers });
+export const updateTournamentEvent= (id: number, data: TournamentEvent) => axios.patch(`${API_URL}/editTournamentEvent`, JSON.stringify(data), { headers });
+export const deleteTournamentEvent = (id: number) => axios.delete(`${API_URL}/deleteTournamentEvent?id=${id}`);
+
+// всё
+export const getEvents = () => axios.get(`${API_URL}getAllEvents`);

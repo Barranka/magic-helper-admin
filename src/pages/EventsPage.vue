@@ -7,120 +7,249 @@
     NFlex,
     NLayoutContent,
     NSpace,
+    NH3,
     NH4,
     NText,
+    NEmpty,
+    NSpin,
+    NGradientText,
+    NTag,
+    useNotification,
+    useDialog,
   } from 'naive-ui';
   import { ref, computed } from 'vue';
+  import axios from 'axios';
   import { useStore } from 'vuex';
-  import { deleteEvent as apiDeleteEvent } from '../services/api'; // функция для удаления события
+  import {
+    deleteDailyEvent,
+    updateDailyEvent,
+    deleteTournamentEvent,
+    updateTournamentEvent,
+  } from '../services/api';
+  import { formatInfo } from '../components/Forms/index';
 
+  const dialog = useDialog();
+  const notification = useNotification();
   const store = useStore();
-  const storeEvents = computed(() => store.state.events);
+
+  const storeEvents = computed(() => store.getters.getAllEventsData);
+  const isLoading = computed(() => store.getters.getLoading);
 
   const events = ref(storeEvents);
   const isModalVisible = ref(false);
-  const modalFormType = ref('') as any;
-  const modalFormData = ref({});
+  const modalFormType = ref<EventType | null>(null);
+  const eventId = ref<EventId | null>(null);
 
-  const openModal = (type: string, event = {}) => {
-    modalFormType.value = type;
-    modalFormData.value = event;
+  const loadEvents = async () => {
+    await store.dispatch('getAllEventsData');
+  };
+
+  const openModal = (type: EventType, event: EventItem | null = null) => {
     isModalVisible.value = true;
+    modalFormType.value = type;
+    eventId.value = event?.id || null;
   };
 
   const closeModal = () => {
     isModalVisible.value = false;
-    modalFormType.value = '';
-    modalFormData.value = {};
+    modalFormType.value = null;
+    eventId.value = null;
   };
 
-  const deleteEvent = async (id: number) => {
+  const deleteEvent = async (id: number, type: EventType) => {
+    console.log(type, 'type');
     try {
-      await apiDeleteEvent(id);
-    } catch (error) {
+      type === 'daily'
+        ? await deleteDailyEvent(id)
+        : await deleteTournamentEvent(id);
+
+      notification.success({
+        content: 'Событие успешно удалено!',
+        duration: 2500,
+        keepAliveOnHover: true,
+      });
+
+      loadEvents();
+    } catch (error: unknown) {
       console.error('Error deleting event:', error);
+      if (axios.isAxiosError(error)) {
+        notification.error({
+          content: error.response?.data,
+          duration: 2500,
+          keepAliveOnHover: true,
+        });
+      }
     }
   };
+
+  const editEvent = async (id: number, event: EventItem) => {
+    try {
+      event.type === 'daily'
+        ? await updateDailyEvent(id, event)
+        : await updateTournamentEvent(id, event);
+
+      notification.success({
+        content: 'Событие успешно отредактировано!',
+        duration: 2500,
+        keepAliveOnHover: true,
+      });
+
+      loadEvents();
+    } catch (error: unknown) {
+      console.error('Error deleting event:', error);
+      if (axios.isAxiosError(error)) {
+        notification.error({
+          content: error.response?.data,
+          duration: 2500,
+          keepAliveOnHover: true,
+        });
+      }
+    }
+  };
+
+  const handleConfirmDeleting = (id: number, event: EventType) => {
+    dialog.warning({
+      title: 'Удалить событие?',
+      positiveText: 'Подтвердить',
+      negativeText: 'Отменить',
+      draggable: true,
+      onPositiveClick: () => {
+        deleteEvent(id, event);
+      },
+    });
+  };
+
+  loadEvents();
 </script>
 
 <template>
-  <n-space
-    vertical
-    size="large"
-  >
-    <n-flex
-      justify="end"
-      style="padding: 16px"
+  <n-spin :show="isLoading">
+    <n-space
+      vertical
+      size="large"
     >
-      <n-button
-        @click="openModal('daily')"
-        size="medium"
-        type="info"
-      >
-        + Дейлик
-      </n-button>
-      <n-button
-        @click="openModal('tournament')"
-        size="medium"
-        type="info"
-      >
-        + Турнир
-      </n-button>
-    </n-flex>
-
-    <n-layout>
-      <n-h4
-        prefix="bar"
-        type="info"
-      >
-        <n-text type="info"> Список событий </n-text>
-      </n-h4>
-      <n-layout-content
-        ref="contentRef"
-        content-style="padding: 0 16px;"
-        :native-scrollbar="false"
-      >
-        <n-list
-          bordered
-          class="event-item"
+      <n-flex justify="space-between">
+        <n-h3
+          prefix="bar"
+          type="success"
         >
-          <n-list-item
-            v-for="event in events"
-            :key="event.id"
+          <n-gradient-text
+            :size="36"
+            type="success"
           >
-            <n-flex justify="space-between">
-              <n-flex>
-                <div>{{ event.title }}</div>
-                <div>{{ event.date }}</div>
-                <div>{{ event.description }}</div>
-              </n-flex>
-              <n-flex>
-                <n-button
-                  @click="openModal(event.type, event)"
-                  type="info"
-                  secondary
-                >
-                  Edit
-                </n-button>
-                <n-button
-                  @click="deleteEvent(event.id)"
-                  type="info"
-                  secondary
-                >
-                  Delete
-                </n-button>
-              </n-flex>
-            </n-flex>
-          </n-list-item>
-        </n-list>
-      </n-layout-content>
-    </n-layout>
+            MagicHelper
+          </n-gradient-text>
+        </n-h3>
+        <n-flex style="padding: 16px">
+          <n-button
+            @click="openModal('daily')"
+            size="medium"
+            type="info"
+          >
+            + Дейлик
+          </n-button>
+          <n-button
+            @click="openModal('tournament')"
+            size="medium"
+            type="info"
+          >
+            + Турнир
+          </n-button>
+        </n-flex>
+      </n-flex>
 
-    <EventModal
-      :isVisible="isModalVisible"
-      :formType="modalFormType"
-      :formData="modalFormData"
-      @close="closeModal"
-    />
-  </n-space>
+      <n-empty
+        v-if="!events.length && !isLoading"
+        status="info"
+        title="Доступных событий нет"
+        description='Чтобы добавить новое событие нажмите кнопку для добавления "Дейлик" или "Турнир"'
+      >
+      </n-empty>
+
+      <n-layout v-else>
+        <n-h3 style="padding-left: 16px">
+          <n-text
+            type="info"
+            :size="36"
+          >
+            Список событий
+          </n-text>
+        </n-h3>
+        <n-layout-content
+          ref="contentRef"
+          :native-scrollbar="false"
+        >
+          <n-list
+            bordered
+            hoverable
+            class="event-item"
+          >
+            <n-list-item
+              v-for="event in events"
+              :key="event.id"
+            >
+              <n-flex justify="space-between">
+                <n-flex vertical>
+                  <n-flex>
+                    <n-tag
+                      :type="event.type === 'daily' ? 'info' : 'warning'"
+                      :bordered="false"
+                    >
+                      {{ event.type === 'daily' ? 'Дейлик' : 'Турнир' }}
+                    </n-tag>
+                    <n-text strong>
+                      Тип:
+                      {{
+                        formatInfo[event.format as EventFormat]?.label || '-'
+                      }}
+                    </n-text>
+                  </n-flex>
+                  <div>{{ event.description }}</div>
+                  <div>
+                    <n-text strong>Место проведения:</n-text> {{ event.city }},
+                    {{ event.place }},
+                    <n-a
+                      :href="event.mapUrl"
+                      target="_blank"
+                    >
+                      <n-text underline>на карте 📍</n-text>
+                    </n-a>
+                  </div>
+                  <div>
+                    <n-text strong>Дата и время:</n-text> {{ event.day }},
+                    {{ event.time }}
+                  </div>
+                </n-flex>
+                <n-flex>
+                  <n-button
+                    @click="openModal(event.type, event)"
+                    type="info"
+                    secondary
+                  >
+                    Edit
+                  </n-button>
+                  <n-button
+                    @click="handleConfirmDeleting(event.id, event.type)"
+                    type="info"
+                    secondary
+                  >
+                    Delete
+                  </n-button>
+                </n-flex>
+              </n-flex>
+            </n-list-item>
+          </n-list>
+        </n-layout-content>
+      </n-layout>
+
+      <EventModal
+        :isVisible="isModalVisible"
+        :type="modalFormType"
+        :id="eventId"
+        @close="closeModal"
+        @closeModal="isModalVisible = false"
+        @reload="loadEvents()"
+      />
+    </n-space>
+  </n-spin>
 </template>
