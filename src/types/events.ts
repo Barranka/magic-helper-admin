@@ -25,12 +25,17 @@ interface EventId {
    id: number;
 }
 
+interface BannerItem {
+   file: File;
+   [key: string]: any; // если там есть другие поля, можно уточнить
+ }
+
 interface DailyEvent {
    type: 'daily';
    city: string;
    place: string;
    day: WeekDay;
-   time: string | number;
+   time: string;
    mapUrl: string;
    format: EventFormat;
    price: string;
@@ -41,11 +46,11 @@ interface DailyEvent {
 interface TournamentEvent {
    type: 'tournament';
    name: string;
-   banner:  File | string;
+   banner:  BannerItem[];
    city: string;
    place: string;
    day: WeekDay;
-   time: string | number;
+   time: string;
    mapUrl: string;
    format: EventFormat;
    price: string;

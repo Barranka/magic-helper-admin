@@ -1,11 +1,9 @@
 // store/index.ts
 import {
   getEvents,
-  getDailyEvents,
   createDailyEvent,
   deleteDailyEvent,
   updateDailyEvent,
-  getTournamentEvents,
   createTournamentEvent,
   deleteTournamentEvent,
   updateTournamentEvent,
@@ -38,6 +36,28 @@ const initialTournamentData = {
   description: '',
   theme: null,
 };
+
+const createFormData = (data: TournamentEvent) => {
+  const formData = new FormData();
+
+  formData.append('type', 'tournament');
+  formData.append('name', data.name || '');
+  formData.append('city', data.city || '');
+  formData.append('place', data.place || '');
+  formData.append('day', data.day || '');
+  formData.append('time', data.time || '');
+  formData.append('mapUrl', data.mapUrl || '');
+  formData.append('format', data.format || '');
+  formData.append('price', data.price || '');
+  formData.append('description', data.description || '');
+  formData.append('theme', data.theme || '');
+
+  if (data.banner && data.banner.length > 0 && data.banner[0].file) {
+    formData.append('image', data.banner[0].file);
+  }
+
+  return formData;
+}
 
 export const store = createStore({
   state: {
@@ -132,8 +152,20 @@ export const store = createStore({
     },
     async updateTournamentData({dispatch}, data) {
       dispatch('changeLoading', true);
+
       try {
         await updateTournamentEvent(data.id, data);
+      } catch(error) {
+        throw error;
+      } finally {
+        dispatch('changeLoading', false);
+      }
+    },
+    async deleteTournamentEvent({ dispatch }, id) {
+      dispatch('changeLoading', true);
+
+      try {
+        await deleteTournamentEvent(id);
       } catch(error) {
         throw error;
       } finally {

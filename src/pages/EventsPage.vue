@@ -21,7 +21,6 @@
   import { ref, computed } from 'vue';
   import axios from 'axios';
   import { useStore } from 'vuex';
-  import { deleteDailyEvent, deleteTournamentEvent } from '../services/api';
   import { formatInfo, dayInfo } from '../components/Forms/index';
 
   const dialog = useDialog();
@@ -55,8 +54,8 @@
   const deleteEvent = async (id: number, type: EventType) => {
     try {
       type === 'daily'
-        ? await deleteDailyEvent(id)
-        : await deleteTournamentEvent(id);
+        ? await store.dispatch('deleteDailyEvent', id)
+        : await store.dispatch('deleteTournamentEvent', id);
 
       notification.success({
         content: 'Событие успешно удалено!',
