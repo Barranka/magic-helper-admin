@@ -21,10 +21,15 @@
         label="Баннер турнира"
       >
         <n-upload
-          v-model:file-list="formData.banner"
-          action="https://www.mocky.io/v2/5e4bafc63100007100d8b70f"
+          v-model:file-list="fileList"
+          @before-upload="beforeUpload"
         >
-          <n-button secondary> Загрузить баннер </n-button>
+          <n-button
+            :disabled="fileList.length === 1"
+            secondary
+          >
+            Загрузить баннер
+          </n-button>
         </n-upload>
       </n-form-item>
 
@@ -65,13 +70,16 @@
         <n-grid-item>
           <n-form-item
             path="day"
-            label="День недели"
+            label="Дата турнира"
           >
-            <n-select
-              v-model:value="formData.day"
-              :options="daysOptions"
-              placeholder="День недели"
+            <n-date-picker
+              v-model:formatted-value="formData.day"
+              value-format="dd-MM-yyyy"
+              format="dd-MM-yyyy"
+              type="date"
+              placeholder="Дата турнира"
               clearable
+              style="width: 100%"
             />
           </n-form-item>
         </n-grid-item>
@@ -163,13 +171,17 @@
     NFormItem,
     NUpload,
     NButton,
+    NDatePicker,
     FormInst,
   } from 'naive-ui';
-  import { formatInfo, dayInfo } from './index';
+  import type { UploadFileInfo } from 'naive-ui';
+  import { formatInfo } from './index';
   import { watch, reactive, watchEffect, toRaw, ref } from 'vue';
   import { useStore } from 'vuex';
+  import { useNotify } from '../../composables/useNotify';
 
   const store = useStore();
+  const { notifyError } = useNotify();
 
   defineProps({
     mode: { type: String, default: 'create' },
@@ -177,18 +189,18 @@
 
   const formRef = ref<FormInst | null>(null);
 
-  const formData = reactive({
-    name: null,
-    banner: [],
+  const formData = reactive<TournamentEvent>({
+    name: '',
+    banner: null,
     city: '',
     place: '',
     day: null,
-    time: null,
+    time: '',
     mapUrl: '',
     format: null,
     price: '',
     description: '',
-    theme: null,
+    theme: '',
   });
 
   const rules = {
@@ -204,6 +216,8 @@
     format: { required: true, message: 'Выберите формат', trigger: ['change'] },
     price: { required: true, message: 'Введите цену', trigger: ['input'] },
   };
+
+  const fileList = ref([]);
 
   watchEffect(() => {
     const data = store.getters.getTournamentEventData;
@@ -221,8 +235,11 @@
     { deep: true }
   );
 
+  watch(fileList, (newVal) => {
+    handleFileChange(newVal[0]);
+  });
+
   const formatOptions = Object.values(formatInfo);
-  const daysOptions = Object.values(dayInfo);
 
   const validateForm = async () => {
     try {
@@ -230,6 +247,27 @@
       return true;
     } catch (err) {
       return false;
+    }
+  };
+
+  const beforeUpload = async (data: {
+    file: UploadFileInfo;
+    fileList: UploadFileInfo[];
+  }) => {
+    if (!['image/png', 'image/jpeg'].includes(data.file.file?.type || '')) {
+      notifyError(
+        'Баннер может быть только "image/png" или "image/jpg" формата.'
+      );
+      return false;
+    }
+    return true;
+  };
+
+  const handleFileChange = async (file: UploadFileInfo) => {
+    if (file && file?.file) {
+      const rawFile = file.file;
+
+      if (rawFile instanceof File) formData.banner = rawFile;
     }
   };
 

@@ -25,7 +25,7 @@ const initialDailyData = {
 const initialTournamentData = {
   type: 'tournament',
   name: null,
-  banner: [],
+  banner: null,
   city: '',
   place: '',
   day: null,
@@ -37,7 +37,7 @@ const initialTournamentData = {
   theme: null,
 };
 
-const createFormData = (data: TournamentEvent) => {
+const createFormData = (data: TournamentEvent): FormData => {
   const formData = new FormData();
 
   formData.append('type', 'tournament');
@@ -52,8 +52,8 @@ const createFormData = (data: TournamentEvent) => {
   formData.append('description', data.description || '');
   formData.append('theme', data.theme || '');
 
-  if (data.banner && data.banner.length > 0 && data.banner[0].file) {
-    formData.append('image', data.banner[0].file);
+  if (data.banner) {
+    formData.append('image', data.banner);
   }
 
   return formData;
@@ -81,7 +81,6 @@ export const store = createStore({
       state.dailyData = { ...data };
     },
     updateTournamentEventData(state, data) {
-      console.log(typeof data, 'data')
       state.tournamentData = { ...data };
     },
     setLoading(state, data) {
@@ -142,8 +141,10 @@ export const store = createStore({
     async createTournamentData({dispatch}, data) {
       dispatch('changeLoading', true);
 
+      const formData = createFormData(data);
+
       try {
-        await createTournamentEvent(data);
+        await createTournamentEvent(formData);
       } catch(error) {
         throw error;
       } finally {
@@ -153,8 +154,10 @@ export const store = createStore({
     async updateTournamentData({dispatch}, data) {
       dispatch('changeLoading', true);
 
+      const formData = createFormData(data);
+
       try {
-        await updateTournamentEvent(data.id, data);
+        await updateTournamentEvent(data.id, formData);
       } catch(error) {
         throw error;
       } finally {

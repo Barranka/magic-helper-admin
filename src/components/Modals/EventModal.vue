@@ -1,18 +1,17 @@
 <script setup lang="ts">
-  import { NModal, useNotification, NButton, NFlex, NDivider } from 'naive-ui';
+  import { useEventType } from '../../composables/useEventType';
+  import { useNotify } from '../../composables/useNotify';
+  import { NModal, NButton, NFlex, NDivider } from 'naive-ui';
   import { computed, watch, ref } from 'vue';
   import { useStore } from 'vuex';
 
   import DailyEventForm from '../Forms/DailyEventForm.vue';
   import TournamentEventForm from '../Forms/TournamentEventForm.vue';
 
-  const notification = useNotification();
-  const store = useStore();
-
   interface Props {
     isVisible: boolean;
-    type: EventType | null;
-    id: EventId | null;
+    type?: EventType;
+    id?: EventId;
   }
 
   const props = defineProps<Props>();
@@ -20,6 +19,10 @@
     (event: 'closeModal'): void;
     (event: 'reload'): void;
   }>();
+
+  const { isDailyEvent } = useEventType(props.type);
+  const { notifySuccess, notifyError } = useNotify();
+  const store = useStore();
 
   const formComponentRef = ref();
 
@@ -62,48 +65,51 @@
       if (newId !== oldId) {
         store.commit('setMode', 'edit');
 
-        if (props.type === 'daily') {
-          store.commit(
-            'updateDailyEventData',
-            storeEvents.value.find((event: EventItem) => event.id === props.id)
-          );
-        } else {
-          store.commit(
-            'updateTournamentEventData',
-            storeEvents.value.find((event: EventItem) => event.id === props.id)
-          );
-        }
+        store.commit(
+          isDailyEvent.value
+            ? 'updateDailyEventData'
+            : 'updateTournamentEventData',
+          storeEvents.value.find((event: EventItem) => event.id === props.id)
+        );
       }
     }
   );
 
   const editEvent = async () => {
     try {
-      if (props.type === 'daily') {
+      if (isDailyEvent.value) {
         await store.dispatch('updateDailyData', formDailyData.value);
       } else {
         await store.dispatch('updateTournamentData', formTournamentData.value);
       }
 
-      notification.success({
-        content: 'Событие успешно отредактировано!',
-        duration: 2500,
-        keepAliveOnHover: true,
-      });
+      notifySuccess('Событие успешно отредактировано!');
 
-      cancelCallback();
+      closeModal();
       emit('reload');
     } catch (error: any) {
-      console.log(error, 'error');
-      notification.error({
-        content: error.message,
-        duration: 2500,
-        keepAliveOnHover: true,
-      });
+      notifyError(error);
     }
   };
 
   const submitCallback = async () => {
+    try {
+      if (isDailyEvent.value) {
+        await store.dispatch('createDailyData', formDailyData.value);
+      } else {
+        await store.dispatch('createTournamentData', formTournamentData.value);
+      }
+
+      notifySuccess('Событие успешно отредактировано!');
+
+      closeModal();
+      emit('reload');
+    } catch (error: any) {
+      notifyError(error);
+    }
+  };
+
+  const validateForm = async () => {
     try {
       const valid = await formComponentRef.value?.validateForm();
 
@@ -115,38 +121,13 @@
         return;
       }
 
-      try {
-        if (props.type === 'daily') {
-          await store.dispatch('createDailyData', formDailyData.value);
-        } else {
-          await store.dispatch(
-            'createTournamentData',
-            formTournamentData.value
-          );
-        }
-
-        notification.success({
-          content: 'Событие успешно созданно!',
-          duration: 2500,
-          keepAliveOnHover: true,
-        });
-
-        cancelCallback();
-        emit('reload');
-      } catch (error: any) {
-        notification.error({
-          content: error.response,
-          meta: error.response,
-          duration: 2500,
-          keepAliveOnHover: true,
-        });
-      }
+      submitCallback();
     } catch (error: any) {
-      console.log(error.response, 'error');
+      notifyError(error);
     }
   };
 
-  const cancelCallback = () => {
+  const closeModal = () => {
     store.dispatch('clearDailyEventData');
     store.dispatch('clearTournamentEventData');
     emit('closeModal');
@@ -174,7 +155,7 @@
     <template #footer>
       <n-flex justify="end">
         <n-button
-          @click="cancelCallback()"
+          @click="closeModal()"
           secondary
         >
           Отменить
@@ -184,7 +165,7 @@
           attr-type="submit"
           type="info"
           secondary
-          @click="submitCallback"
+          @click="validateForm()"
         >
           Отправить
         </n-button>
