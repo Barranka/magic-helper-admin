@@ -20,11 +20,12 @@
     (event: 'reload'): void;
   }>();
 
-  const { isDailyEvent } = useEventType(props.type);
+  const formComponentRef = ref();
+  const currentType = ref();
+
+  const { isDailyEvent } = useEventType(currentType);
   const { notifySuccess, notifyError } = useNotify();
   const store = useStore();
-
-  const formComponentRef = ref();
 
   const storeEvents = computed(() => store.getters.getAllEventsData);
   const showModal = computed(() => props.isVisible);
@@ -58,6 +59,13 @@
         return undefined;
     }
   });
+
+  watch(
+    () => props.type,
+    (newValue) => {
+      currentType.value = newValue;
+    }
+  );
 
   watch(
     () => props.id,

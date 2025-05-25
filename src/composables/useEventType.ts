@@ -1,8 +1,8 @@
 import { computed } from 'vue';
 
-export function useEventType(type?: 'daily' |  'tournament') {
-  const isDailyEvent = computed(() => type === 'daily');
-  const isTournamentEvent = computed(() => type === 'tournament');
+export function useEventType(type: any) {
+  const isDailyEvent = computed(() => type.value === 'daily');
+  const isTournamentEvent = computed(() => type.value === 'tournament');
 
   return {
     isDailyEvent,
