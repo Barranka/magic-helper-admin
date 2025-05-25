@@ -26,6 +26,7 @@
       theme: event.type === 'tournament' ? event.theme ?? '-' : '-',
       mapUrl: event.mapUrl ?? '-',
       banner: event.type === 'tournament' ? event.banner ?? [] : [],
+      id: event.id,
     }));
   }
 
@@ -118,7 +119,9 @@
               type: 'info',
               size: 'small',
               secondary: true,
-              onClick: () => emit('edit', row),
+              onClick: () => {
+                emit('edit', row);
+              },
             },
             { default: () => '✏️' }
           );
@@ -135,7 +138,9 @@
               type: 'info',
               secondary: true,
               size: 'small',
-              onClick: () => emit('delete', row),
+              onClick: () => {
+                emit('delete', row);
+              },
             },
             { default: () => '🗑️' }
           );

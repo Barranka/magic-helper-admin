@@ -44,6 +44,7 @@
   const openModal = (type: EventType, event: EventItem | null = null) => {
     isModalVisible.value = true;
     modalEventType.value = type;
+
     eventId.value = event?.id;
   };
 
@@ -69,14 +70,16 @@
     }
   };
 
-  const сonfirmDeleting = (id: number, event: EventType) => {
+  const сonfirmDeleting = (event: any) => {
+    if (!event?.id) return;
+
     dialog.warning({
       title: 'Удалить событие?',
       positiveText: 'Подтвердить',
       negativeText: 'Отменить',
       draggable: true,
       onPositiveClick: () => {
-        deleteEvent(id, event);
+        deleteEvent(event.id, event.type);
       },
     });
   };
@@ -116,7 +119,11 @@
           </n-text>
         </n-h3>
 
-        <EventTable :events="events" />
+        <EventTable
+          :events="events"
+          @edit="openModal($event.type, $event)"
+          @delete="сonfirmDeleting($event)"
+        />
       </n-layout>
 
       <EmptyDefault v-else />
