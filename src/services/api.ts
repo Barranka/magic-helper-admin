@@ -15,8 +15,8 @@ export const deleteDailyEvent = (id: number) => axios.delete(`${API_URL}/deleteD
 
 // турниры
 export const getTournamentEvents = () => axios.get(`${API_URL}getTournamentEvents`);
-export const createTournamentEvent = (formData: FormData) => axios.post(`${API_URL}addTournamentEvent`, formData, { headers });
-export const updateTournamentEvent= (id: number, formData: FormData) => axios.patch(`${API_URL}/editTournamentEvent`, formData, { headers });
+export const createTournamentEvent = (data: DailyEvent) => axios.post(`${API_URL}addTournamentEvent`, data);
+export const updateTournamentEvent= (id: number, data: DailyEvent) => axios.patch(`${API_URL}/editTournamentEvent`, data);
 export const deleteTournamentEvent = (id: number) => axios.delete(`${API_URL}/deleteTournamentEvent?id=${id}`);
 
 // всё

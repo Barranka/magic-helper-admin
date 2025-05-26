@@ -144,7 +144,7 @@ export const store = createStore({
       const formData = createFormData(data);
 
       try {
-        await createTournamentEvent(formData);
+        await createTournamentEvent(data);
       } catch(error) {
         throw error;
       } finally {
@@ -157,7 +157,7 @@ export const store = createStore({
       const formData = createFormData(data);
 
       try {
-        await updateTournamentEvent(data.id, formData);
+        await updateTournamentEvent(data.id, data);
       } catch(error) {
         throw error;
       } finally {
