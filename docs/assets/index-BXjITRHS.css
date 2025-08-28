@@ -1,0 +1,1 @@
+.login-form{width:400px}.login-form__title{width:100%}.login-form__form{width:100%;display:flex;flex-direction:column}.login-form__form_submit{display:flex;margin-left:auto}body{margin:0;display:flex;place-items:center;min-width:320px;min-height:100vh}#app{height:100vh;margin:0 auto;padding:2rem}
