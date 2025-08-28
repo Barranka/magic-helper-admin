@@ -1,19 +1,12 @@
-export const formatInfo: Record<EventFormat, { value: EventFormat; label: string; }>  = {
-    pioneer:   { value: 'pioneer',   label: 'Пионер' },
-    standart:  { value: 'standart',  label: 'Стандарт' },
-    modern:    { value: 'modern',    label: 'Модерн' },
-    legacy:    { value: 'legacy',    label: 'Легаси' },
-    pauper:    { value: 'pauper',    label: 'Паупер' },
-    premodern: { value: 'premodern', label: 'Премодерн' },
-    other:     { value: 'other',     label: 'Другое' },
-  };
+import { FormatEnum } from '../../types/events';
 
-export const dayInfo: Record<WeekDay, { value: WeekDay; label: string }> = {
-  monday:    { value: 'monday',    label: 'Понедельник' },
-  tuesday:   { value: 'tuesday',   label: 'Вторник' },
-  wednesday: { value: 'wednesday', label: 'Среда' },
-  thursday:  { value: 'thursday',  label: 'Четверг' },
-  friday:    { value: 'friday',    label: 'Пятница' },
-  saturday:  { value: 'saturday',  label: 'Суббота' },
-  sunday:    { value: 'sunday',    label: 'Воскресенье' },
-};
+export const formatOptions = [
+  { value: 'FORMAT_PIONEER', label: FormatEnum['FORMAT_PIONEER'] },
+  { value: 'FORMAT_STANDARD', label: FormatEnum['FORMAT_STANDARD'] },
+  { value: 'FORMAT_MODERN', label: FormatEnum['FORMAT_MODERN'] },
+  { value: 'FORMAT_LEGACY', label: FormatEnum['FORMAT_LEGACY'] },
+  { value: 'FORMAT_PAUPER', label: FormatEnum['FORMAT_PAUPER'] },
+  { value: 'FORMAT_PREMODERN', label: FormatEnum['FORMAT_PREMODERN'] },
+  { value: 'FORMAT_DUEL_COMMANDER', label: FormatEnum['FORMAT_DUEL_COMMANDER'] },
+  { value: 'FORMAT_EDH', label: FormatEnum['FORMAT_EDH'] },
+];

@@ -14,7 +14,7 @@ export function useNotify() {
   const notifyError = (error: unknown) => {
     let message = '';
 
-    switch(true) {
+    switch (true) {
       case error instanceof Error:
         message = error.message;
         break;

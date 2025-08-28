@@ -1,23 +1,36 @@
-import axios from 'axios';
+import axios from "axios";
+import { store } from "../store";
+import { EventItem, RequestBodyListEvent } from "../types/events"
 
-const headers = {
-  'Content-Type': 'multipart/form-data',
-};
+const API_URL_PUBLIC = 'https://magic.ginc.tech/api/v1';
 
-// params для get (фильтрация) и delete
-const API_URL = 'https://us-central1-sampleMtgHelper.cloudfunctions.net/';
+const api = axios.create({
+  baseURL: API_URL_PUBLIC,
+  headers: {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  },
+});
 
-// дейлики
-export const getDailyEvents = () => axios.get(`${API_URL}getDailyEvents`);
-export const createDailyEvent = (data: DailyEvent) => axios.post(`${API_URL}addDailyEvent`, data);
-export const updateDailyEvent= (id: number, data: DailyEvent) => axios.patch(`${API_URL}/editDailyEvent`, data);
-export const deleteDailyEvent = (id: number) => axios.delete(`${API_URL}/deleteDailyEvent?id=${id}`);
+// Перехватчик: добавляем токен из Vuex к каждому запросу
+api.interceptors.request.use((config) => {
+  const token = (store.state as any).auth?.accessToken;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
-// турниры
-export const getTournamentEvents = () => axios.get(`${API_URL}getTournamentEvents`);
-export const createTournamentEvent = (data: DailyEvent) => axios.post(`${API_URL}addTournamentEvent`, data);
-export const updateTournamentEvent= (id: number, data: DailyEvent) => axios.patch(`${API_URL}/editTournamentEvent`, data);
-export const deleteTournamentEvent = (id: number) => axios.delete(`${API_URL}/deleteTournamentEvent?id=${id}`);
+export default api;
 
-// всё
-export const getEvents = () => axios.get(`${API_URL}getAllEvents`);
+// AUTH
+export const auth = (body: AuthForm) => api.post("/public/sign_in", body);
+
+// EVENTS
+export const createEvent = (body: EventItem) => api.post('/admin/events', body);
+export const updateEvent = (id: number, body: EventItem) => api.put(`/admin/events/${id}`, body);
+export const deleteEvent = (id: number) => api.delete(`/admin/events/${id}`);
+export const getEvents = (body: RequestBodyListEvent) => api.post('/public/list_events', body);
+
+// CITIES
+export const getCities = () => api.get('/public/cities');

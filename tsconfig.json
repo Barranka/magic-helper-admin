@@ -1,16 +1,12 @@
 {
   "compilerOptions": {
-    "types": [
-      "vite/client",
-      "vue-router",
-      "node"
-    ],
+    "types": ["vite/client", "vue-router", "node"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
     },
-    "target": "ES2020",  // или ESNext, если хочешь более новую версию
-    "module": "ESNext",  // или Node16 или Nodenext, если ты используешь Node.js
+    "target": "ES2020", // или ESNext, если хочешь более новую версию
+    "module": "ESNext", // или Node16 или Nodenext, если ты используешь Node.js
     "moduleResolution": "Node",
     "lib": ["ES2020", "DOM"],
     "esModuleInterop": true,

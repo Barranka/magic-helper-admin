@@ -1,87 +1,54 @@
 // store/index.ts
-import {
-  getEvents,
-  createDailyEvent,
-  deleteDailyEvent,
-  updateDailyEvent,
-  createTournamentEvent,
-  deleteTournamentEvent,
-  updateTournamentEvent,
-} from '../services/api';
-import { createStore } from 'vuex';
+import { getEvents, createEvent, deleteEvent, updateEvent } from '../services/api';
+import { createStore, Store } from 'vuex';
+import { EventItem, EventMode } from '../types/events';
+import auth from './auth';
+import cities from './cities';
 
-const initialDailyData = {
-  type: 'daily',
-  city: '',
-  place: '',
-  day: null,
-  time: null,
-  mapUrl: '',
+const initialEventData = {
+  type: null,
   format: null,
+  city_id: '',
+  place: '',
   price: '',
+  weekday: '',
+  time: null,
+  date: null,
+  map_url: '',
+  image_url: '',
+  banner: '',
+  name: '',
+  theme: '',
   description: '',
 };
 
-const initialTournamentData = {
-  type: 'tournament',
-  name: null,
-  banner: null,
-  city: '',
-  place: '',
-  day: null,
-  time: null,
-  mapUrl: '',
-  format: null,
-  price: '',
-  description: '',
-  theme: null,
-};
-
-const createFormData = (data: TournamentEvent): FormData => {
-  const formData = new FormData();
-
-  formData.append('type', 'tournament');
-  formData.append('name', data.name || '');
-  formData.append('city', data.city || '');
-  formData.append('place', data.place || '');
-  formData.append('day', data.day || '');
-  formData.append('time', data.time || '');
-  formData.append('mapUrl', data.mapUrl || '');
-  formData.append('format', data.format || '');
-  formData.append('price', data.price || '');
-  formData.append('description', data.description || '');
-  formData.append('theme', data.theme || '');
-
-  if (data.banner) {
-    formData.append('image', data.banner);
-  }
-
-  return formData;
+export interface RootState {
+  events: EventItem[];
+  eventForm: any;
+  isLoading: boolean;
+  mode: EventMode;
 }
 
-export const store = createStore({
+export const store: Store<RootState> = createStore<RootState>({
   state: {
     events: [] as EventItem[],
-    dailyData: { ...initialDailyData },
-    tournamentData: { ...initialTournamentData },
+    eventForm: {},
     isLoading: false,
     mode: 'save' as EventMode,
+  },
+  modules: {
+    auth,
+    cities,
   },
   mutations: {
     setAllEventsData(state, events) {
       state.events = [...events];
     },
-    clearDailyEventData(state) {
-      state.dailyData = { ...initialDailyData };
+    clearEventData(state) {
+      state.eventForm = { ...initialEventData };
     },
-    clearTournamentEventData(state) {
-      state.tournamentData = { ...initialTournamentData };
-    },
-    updateDailyEventData(state, data) {
-      state.dailyData = { ...data };
-    },
-    updateTournamentEventData(state, data) {
-      state.tournamentData = { ...data };
+    updateEventData(state, data) {
+      state.eventForm = { ...data };
     },
     setLoading(state, data) {
       state.isLoading = data;
@@ -91,106 +58,66 @@ export const store = createStore({
     },
   },
   actions: {
-    async getAllEventsData({ commit, dispatch }) {
+    async getAllEventsData({ commit, dispatch }, body) {
       dispatch('changeLoading', true);
 
       try {
-        const response = await getEvents();
-
-        commit('setAllEventsData', response.data);
+        const response = await getEvents(body);
+        commit('setAllEventsData', response.data?.events || []);
       } finally {
         dispatch('changeLoading', false);
       }
     },
-    async createDailyData({dispatch}, data) {
+    async createEventData({ commit, dispatch }, data) {
       dispatch('changeLoading', true);
-
       try {
-        await createDailyEvent(data);
-      } catch(error) {
+        await createEvent(data);
+      } catch (error) {
         throw error;
       } finally {
         dispatch('changeLoading', false);
       }
     },
-    async updateDailyData({dispatch}, data) {
+    async updateEventData({ dispatch }, data) {
       dispatch('changeLoading', true);
 
       try {
-        await updateDailyEvent(data.id, data);
-      } catch(error) {
+        delete data.city;
+        await updateEvent(data.id, data);
+      } catch (error) {
         throw error;
       } finally {
         dispatch('changeLoading', false);
       }
     },
-    async deleteDailyEvent({ dispatch }, id) {
+    async deleteEventData({ dispatch }, id) {
       dispatch('changeLoading', true);
 
       try {
-        await deleteDailyEvent(id);
-      } catch(error) {
+        await deleteEvent(id);
+      } catch (error) {
         throw error;
+
       } finally {
         dispatch('changeLoading', false);
       }
     },
-    async clearDailyEventData({ commit }) {
-      commit('clearDailyEventData');
-    },
-    async createTournamentData({dispatch}, data) {
-      dispatch('changeLoading', true);
-
-      const formData = createFormData(data);
-
-      try {
-        await createTournamentEvent(data);
-      } catch(error) {
-        throw error;
-      } finally {
-        dispatch('changeLoading', false);
-      }
-    },
-    async updateTournamentData({dispatch}, data) {
-      dispatch('changeLoading', true);
-
-      const formData = createFormData(data);
-
-      try {
-        await updateTournamentEvent(data.id, data);
-      } catch(error) {
-        throw error;
-      } finally {
-        dispatch('changeLoading', false);
-      }
-    },
-    async deleteTournamentEvent({ dispatch }, id) {
-      dispatch('changeLoading', true);
-
-      try {
-        await deleteTournamentEvent(id);
-      } catch(error) {
-        throw error;
-      } finally {
-        dispatch('changeLoading', false);
-      }
-    },
-    async clearTournamentEventData({ commit }) {
-      commit('clearTournamentEventData');
+    clearEvent({ commit }) {
+      commit('clearEventData');
     },
     changeLoading({ commit }, data: boolean) {
       commit('setLoading', data);
-    }
+    },
+    updateMode({ commit }, mode: EventMode) {
+      commit('setMode', mode);
+    },
   },
   getters: {
     getAllEventsData(state) {
       return state.events;
     },
-    getDailyEventData(state) {
-      return state.dailyData;
-    },
-    getTournamentEventData(state) {
-      return state.tournamentData;
+    getEventDataDefault(state) {
+      return state.eventForm;
     },
     getLoading(state) {
       return state.isLoading;

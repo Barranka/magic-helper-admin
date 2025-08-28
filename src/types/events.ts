@@ -1,70 +1,80 @@
-type EventItem = DailyEvent | TournamentEvent;
-type EventFormat =
-  | "pioneer"
-  | "standart"
-  | "modern"
-  | "legacy"
-  | "pauper"
-  | "premodern"
-  | "other";
+export type EventFormat =
+'FORMAT_PIONEER' |
+'FORMAT_STANDARD' |
+'FORMAT_MODERN' |
+'FORMAT_LEGACY' |
+'FORMAT_PAUPER' |
+'FORMAT_PREMODERN' |
+'FORMAT_DUEL_COMMANDER' |
+'FORMAT_EDH';
 
-type EventType = 'daily' | 'tournament';
+export type EventType = 'EVENT_TYPE_DAILY' | 'EVENT_TYPE_TOURNAMENT';
 
-type EventMode = 'save' | 'edit';
+export type EventMode = 'save' | 'edit';
 
-type WeekDay =
-  | 'monday'
-  | 'tuesday'
-  | 'wednesday'
-  | 'thursday'
-  | 'friday'
-  | 'saturday'
-  | 'sunday';
+export type WeekDay = 'WEEKDAY_MONDAY' | 'WEEKDAY_TUESDAY' | 'WEEKDAY_WEDNESDAY' | 'WEEKDAY_THURSDAY' | 'WEEKDAY_FRIDAY' | 'WEEKDAY_SATURDAY' | 'WEEKDAY_SUNDAY';
 
-interface EventId {
-   id: number;
+export interface EventId {
+  id?: number;
 }
 
-interface DailyEvent {
-   type?: 'daily';
-   city: string;
-   place: string;
-   day: WeekDay;
-   time: string;
-   mapUrl: string;
-   format: EventFormat | null;
-   price: string;
-   description: string;
-   id?: EventId;
+export interface EventItem {
+  id?: EventId;
+  type?: EventType;
+  format: EventFormat;
+  city: City;
+  city_id: string;
+  place: string;
+  price: string;
+  weekday: WeekDay;
+  time: string;
+  date: Date;
+  map_url: string;
+  image_url: string;
+  banner: string;
+  name: string;
+  theme: string;
+  description: string;
 }
 
-interface TournamentEvent {
-   type?: 'tournament';
-   name: string;
-   banner:  File | null;
-   city: string;
-   place: string;
-   day: WeekDay | null;
-   time: string;
-   mapUrl: string;
-   format: EventFormat | null;
-   price: string;
-   description: string;
-   theme: string;
-   id?: EventId;
+export interface PaginationListEvent {
+  page: string;
+  per_page: string;
 }
 
-interface FormattedEventRow {
-   type: string;
-   name: string;
-   city: string;
-   place: string;
-   day: string | null;
-   time: string | null;
-   format: string | null;
-   price: string;
-   description: string;
-   theme?: string;
-   banner?: File | null;
-   mapUrl?: string;
- }
+export interface FiltersListEvent {
+  type_eq: EventType;
+  city_id_eq: string;
+  with_city: Boolean;
+}
+
+export interface RequestBodyListEvent extends PaginationListEvent {
+  filter: FiltersListEvent;
+}
+
+export enum EventEnum {
+  EVENT_TYPE_DAILY = 'Дейлик',
+  EVENT_TYPE_TOURNAMENT = 'Турник',
+}
+
+export enum WeekDayEnum {
+  WEEKDAY_MONDAY = 'Понедельник',
+  WEEKDAY_TUESDAY = 'Вторник',
+  WEEKDAY_WEDNESDAY = 'Среда',
+  WEEKDAY_THURSDAY = 'Четверг',
+  WEEKDAY_FRIDAY = 'Пятница',
+  WEEKDAY_SATURDAY = 'Суббота',
+  WEEKDAY_SUNDAY = 'Воскресенье',
+}
+
+export enum FormatEnum {
+  FORMAT_EDH = 'EDH',
+  FORMAT_DUEL_COMMANDER = 'COMMANDER',
+  FORMAT_HISTORIC = 'HISTORIC',
+  FORMAT_LEGACY = 'LEGACY',
+  FORMAT_MODERN = 'MODERN',
+  FORMAT_PAUPER = 'PAUPER',
+  FORMAT_PIONEER = 'PIONEER',
+  FORMAT_PREMODERN = 'PREMODERN',
+  FORMAT_STANDARD = 'STANDARD',
+}
