@@ -28,43 +28,17 @@
         </n-grid-item>
       </n-grid>
 
-      <n-grid :x-gap="12" :cols="2">
-        <n-grid-item>
-          <n-form-item path="date" label="Дата турнира">
-            <n-date-picker
-              v-model:formatted-value="formData.date"
-              type="date"
-              format="dd-MM-yyyy"
-              value-format="yyyy-MM-dd'T'HH:mm:ss.SSSXXX"
-              placeholder="Дата турнира"
-              clearable
-              style="width: 100%"
-            >
-            </n-date-picker>
-          </n-form-item>
-        </n-grid-item>
-
-        <n-grid-item>
-          <n-form-item path="time" label="Время">
-            <n-time-picker
-              v-model:formatted-value="formData.time"
-              value-format="HH:mm"
-              format="HH:mm"
-              placeholder="Время"
-              clearable
-              style="width: 100%"
-            />
-          </n-form-item>
-        </n-grid-item>
-      </n-grid>
-
-      <!-- <n-form-item path="map_url" label="Ссылка на Яндекс карты">
-        <n-input
-          v-model:value="formData.map_url"
-          type="text"
-          placeholder="Ссылка на Яндекс карты"
-        />
-      </n-form-item> -->
+      <n-form-item path="date" label="Дата и время турнира">
+        <n-date-picker
+          v-model:value="dateProxy as any"
+          format="dd-MM-yyy HH:mm:ss"
+          type="datetime"
+          clearable
+          placeholder="Дата и время"
+          style="width: 100%"
+        >
+        </n-date-picker>
+      </n-form-item>
 
       <n-form-item path="format" label="Формат">
         <n-select
@@ -99,16 +73,16 @@ import {
   NForm,
   NFormItem,
   NDatePicker,
-  NTimePicker,
   FormInst,
 } from 'naive-ui';
 import { formatOptions } from './index';
-import { watch, computed, watchEffect, toRaw, ref, reactive } from 'vue';
+import { watch, computed, toRaw, ref, reactive } from 'vue';
 import { useStore } from 'vuex';
 
 const store = useStore();
 
 const formRef = ref<FormInst | null>(null);
+const currentDate = ref<FormInst | null>(null);
 const formData = reactive({
   type: 'EVENT_TYPE_TOURNAMENT',
   name: '',
@@ -129,6 +103,24 @@ const optionsCities = computed(() =>
   storeCities.value.map((city: City) => ({ label: city.name, value: city.id })),
 );
 
+const dateProxy = computed<Date | null>({
+  get() {
+    if (!formData.date) return null;
+    const d = new Date(formData.date);
+    return d;
+  },
+  set(val: Date | number | null) {
+    if (!val) {
+      formData.date = null;
+      return;
+    }
+
+    const d = new Date(val);
+
+    formData.date = d.toISOString() as any;
+  },
+}) as unknown as Date;
+
 const rules = {
   name: {
     required: true,
@@ -137,19 +129,10 @@ const rules = {
   },
   city_id: { required: true, message: 'Введите город', trigger: 'input' },
   place: { required: true, message: 'Введите место', trigger: ['input'] },
-  day: { required: true, message: 'Выберите дату', trigger: ['change'] },
-  time: { required: true, message: 'Выберите время', trigger: ['change'] },
+  date: { required: true, message: 'Выберите дату и время турнира', trigger: ['change'] },
   format: { required: true, message: 'Выберите формат', trigger: ['change'] },
   price: { required: true, message: 'Введите цену', trigger: ['input'] },
 };
-
-watchEffect(() => {
-  const data = store.getters.getEventDataDefault;
-
-  if (!data || Object.keys(data).length === 0) return;
-
-  Object.assign(formData, data);
-});
 
 watch(
   formData,
@@ -168,5 +151,15 @@ const validateForm = async () => {
   }
 };
 
+const getDefaultFormData = () => {
+  const data = store.getters.getEventDataDefault;
+
+  if (!data || Object.keys(data).length === 0) return;
+
+  Object.assign(formData, data);
+};
+
 defineExpose({ validateForm });
+
+getDefaultFormData();
 </script>

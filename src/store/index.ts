@@ -5,6 +5,13 @@ import { EventItem, EventMode } from '../types/events';
 import auth from './auth';
 import cities from './cities';
 
+function cleanObject<T extends Record<string, any>>(obj: T): Partial<T> {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([_, value]) => {
+      return value !== "" && value !== null && value !== undefined;
+    })
+  ) as Partial<T>;
+}
 const initialEventData = {
   type: null,
   format: null,
@@ -71,7 +78,9 @@ export const store: Store<RootState> = createStore<RootState>({
     async createEventData({ commit, dispatch }, data) {
       dispatch('changeLoading', true);
       try {
-        await createEvent(data);
+        const body = cleanObject(data) as EventItem;
+
+        await createEvent(body);
       } catch (error) {
         throw error;
       } finally {
@@ -83,7 +92,9 @@ export const store: Store<RootState> = createStore<RootState>({
 
       try {
         delete data.city;
-        await updateEvent(data.id, data);
+        const body = cleanObject(data) as EventItem;
+
+        await updateEvent(data.id, body);
       } catch (error) {
         throw error;
       } finally {

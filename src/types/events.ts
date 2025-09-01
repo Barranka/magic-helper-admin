@@ -27,7 +27,7 @@ export interface EventItem {
   place: string;
   price: string;
   weekday: WeekDay;
-  time: string;
+  time: string | null;
   date: Date;
   map_url: string;
   image_url: string;
@@ -77,4 +77,7 @@ export enum FormatEnum {
   FORMAT_PIONEER = 'PIONEER',
   FORMAT_PREMODERN = 'PREMODERN',
   FORMAT_STANDARD = 'STANDARD',
+  FORMAT_DRAFT = 'DRAFT',
+  FORMAT_DUELEDH = 'DUELEDH',
+  FORMAT_HERITAGE = 'HERITAGE',
 }

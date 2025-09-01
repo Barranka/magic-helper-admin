@@ -9,4 +9,7 @@ export const formatOptions = [
   { value: 'FORMAT_PREMODERN', label: FormatEnum['FORMAT_PREMODERN'] },
   { value: 'FORMAT_DUEL_COMMANDER', label: FormatEnum['FORMAT_DUEL_COMMANDER'] },
   { value: 'FORMAT_EDH', label: FormatEnum['FORMAT_EDH'] },
+  { value: 'FORMAT_DRAFT', label: FormatEnum['FORMAT_DRAFT'] },
+  { value: 'FORMAT_DUELEDH', label: FormatEnum['FORMAT_DUELEDH'] },
+  { value: 'FORMAT_HERITAGE', label: FormatEnum['FORMAT_HERITAGE'] },
 ];

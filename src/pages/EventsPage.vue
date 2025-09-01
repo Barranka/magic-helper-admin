@@ -122,6 +122,10 @@ const pageSizes = [
     label: '40 per page',
     value: 40,
   },
+  {
+    label: '200 per page',
+    value: 200,
+  },
 ];
 const optionsType = [
   {
@@ -138,7 +142,7 @@ const events = ref(storeEvents);
 const isModalVisible = ref(false);
 const eventId = ref();
 const page = ref(0);
-const pageSize = ref(20);
+const pageSize = ref(200);
 const filterType = ref();
 const filterCity = ref();
 const creatingType = ref();

@@ -134,7 +134,6 @@ const validateForm = async () => {
 };
 
 const closeModal = () => {
-  console.log('buttom closeModal');
   emit('closeByCancel');
   store.dispatch('clearEvent');
 };

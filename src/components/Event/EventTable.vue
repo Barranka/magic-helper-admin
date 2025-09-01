@@ -1,15 +1,32 @@
 <template>
-  <n-data-table :columns="columns" :data="data" default-expand-all />
+  <n-data-table
+    :columns="columns"
+    :data="data"
+    default-expand-all
+    @update:sorter="handleSorterChange"
+  />
 </template>
 
 <script setup lang="ts">
 import { h, ref, computed } from 'vue';
-import { NDataTable, NButton, NTag } from 'naive-ui';
+import { NDataTable, NButton, NTag, DataTableBaseColumn, DataTableSortState } from 'naive-ui';
 import { EventItem, WeekDayEnum, FormatEnum } from '../../types/events';
 
 interface Props {
   events: EventItem[];
   cities: City[];
+}
+
+interface RowData {
+  type: string;
+  name: string;
+  city: string;
+  date: string;
+  time: string;
+  place: string;
+  weekday: string;
+  price: string;
+  format: string;
 }
 
 const props = defineProps<Props>();
@@ -43,6 +60,8 @@ function createColumns(emit: ReturnType<typeof defineEmits>) {
     {
       title: 'Тип',
       key: 'type',
+      sortOrder: false,
+      sorter: 'default',
       render(row: any) {
         return h(
           NTag,
@@ -63,6 +82,8 @@ function createColumns(emit: ReturnType<typeof defineEmits>) {
     {
       title: 'Название',
       key: 'name',
+      sortOrder: false,
+      sorter: 'default',
       render(row: any) {
         return h('span', row.name || '-');
       },
@@ -70,32 +91,57 @@ function createColumns(emit: ReturnType<typeof defineEmits>) {
     {
       title: 'Город',
       key: 'city',
+      sortOrder: false,
+      sorter: 'default',
       render(row: any) {
         return h('span', row.city.name);
       },
     },
-    { title: 'Место проведения', key: 'place' },
+    {
+      title: 'Место проведения',
+      key: 'place',
+      sortOrder: false,
+      sorter: 'default',
+    },
     {
       title: 'День недели',
       key: 'weekday',
+      sortOrder: false,
+      sorter: 'default',
       render(row: any) {
-        console.log(row.weekday, 'rowrowrow');
         const weekday = WeekDayEnum[row.weekday as keyof typeof WeekDayEnum] || '-';
         return h('span', weekday);
       },
     },
-    { title: 'Дата', key: 'date' },
-    { title: 'Время', key: 'time' },
+    {
+      title: 'Дата',
+      key: 'date',
+      sortOrder: false,
+      sorter: 'default',
+      render(row: any) {
+        if (!row.date) return h('span', '-');
+
+        const date = new Date(row.date);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+
+        const formatted = `${day}.${month}.${year}`;
+        return h('span', formatted);
+      },
+    },
+    { title: 'Время', key: 'time', sortOrder: false, sorter: 'default' },
     {
       title: 'Формат',
       key: 'format',
+      sortOrder: false,
+      sorter: 'default',
       render(row: any) {
-        console.log(row.weekday, 'rowrowrow');
         const format = FormatEnum[row.format as keyof typeof FormatEnum] || '-';
         return h('span', format);
       },
     },
-    { title: 'Цена, руб.', key: 'price' },
+    { title: 'Цена, руб.', key: 'price', sortOrder: false, sorter: 'default' },
     {
       title: 'Редактировать',
       key: 'edit',
@@ -133,9 +179,22 @@ function createColumns(emit: ReturnType<typeof defineEmits>) {
         );
       },
     },
-  ];
+  ] as any;
 }
 
 const data = computed(() => formatEvents(props.events));
 const columns = ref(createColumns(emit));
+
+function handleSorterChange(sorter: DataTableSortState) {
+  columns.value.forEach((column: DataTableBaseColumn<RowData>) => {
+    /** column.sortOrder !== undefined means it is uncontrolled */
+    if (column.sortOrder === undefined) return;
+    if (!sorter) {
+      column.sortOrder = false;
+      return;
+    }
+    if (column.key === sorter.columnKey) column.sortOrder = sorter.order;
+    else column.sortOrder = false;
+  });
+}
 </script>

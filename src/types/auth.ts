@@ -4,6 +4,10 @@ interface AuthForm {
   device_id?: string;
 }
 
+interface RefreshForm {
+  refresh_token: string;
+}
+
 interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
