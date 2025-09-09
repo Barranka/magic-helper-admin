@@ -14,7 +14,6 @@ export default {
   },
   actions: {
     async getCities({ commit }: ActionContext<CitiesState, RootState>, query: string) {
-      console.log(query, 'body')
       const response = await getCities(query);
 
       commit('SET_CITIES', response.data.cities);
