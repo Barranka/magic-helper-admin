@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "types": ["vite/client", "vue-router", "node", "element-plus/global"],
+    "types": ["vite/client", "vue-router", "node"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]

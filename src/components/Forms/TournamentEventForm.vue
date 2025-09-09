@@ -18,6 +18,8 @@
               filterable
               placeholder="Город события"
               clearable
+              :loading="loadingCities"
+              @search="loadCities"
             />
           </n-form-item>
         </n-grid-item>
@@ -78,9 +80,12 @@ import {
 import { formatOptions } from './index';
 import { watch, computed, toRaw, ref, reactive } from 'vue';
 import { useStore } from 'vuex';
+import { useNotify } from '../../composables/useNotify';
 
 const store = useStore();
+const { notifyError } = useNotify();
 
+const loadingCities = ref(false);
 const formRef = ref<FormInst | null>(null);
 const currentDate = ref<FormInst | null>(null);
 const formData = reactive({
@@ -100,7 +105,7 @@ const formData = reactive({
 
 const storeCities = computed(() => store.getters['cities/cities']);
 const optionsCities = computed(() =>
-  storeCities.value.map((city: City) => ({ label: city.name, value: city.id })),
+  storeCities.value?.map((city: City) => ({ label: city.name, value: city.id })),
 );
 
 const dateProxy = computed<Date | null>({
@@ -157,6 +162,21 @@ const getDefaultFormData = () => {
   if (!data || Object.keys(data).length === 0) return;
 
   Object.assign(formData, data);
+};
+
+const loadCities = async (query?: string) => {
+  if (query && query.length <= 3) return;
+
+  try {
+    loadingCities.value = true;
+
+    await store.dispatch('cities/getCities', query);
+  } catch (error: unknown) {
+    console.log(error, 'error');
+    notifyError(error);
+  } finally {
+    loadingCities.value = false;
+  }
 };
 
 defineExpose({ validateForm });
