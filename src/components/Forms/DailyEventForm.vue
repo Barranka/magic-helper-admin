@@ -8,6 +8,8 @@
           filterable
           placeholder="Город события"
           clearable
+          :loading="loadingCities"
+          @search="loadCities"
         />
       </n-form-item>
 
@@ -84,6 +86,7 @@ import { formatOptions } from './index';
 import { reactive, watchEffect, toRaw, watch, ref, computed } from 'vue';
 import { useStore } from 'vuex';
 import { WeekDayEnum } from '../../types/events';
+import { useNotify } from '../../composables/useNotify';
 
 const daysOptions = [
   { value: 'WEEKDAY_MONDAY', label: WeekDayEnum['WEEKDAY_MONDAY'] },
@@ -96,7 +99,9 @@ const daysOptions = [
 ];
 
 const store = useStore();
+const { notifyError } = useNotify();
 
+const loadingCities = ref(false);
 const formRef = ref<FormInst | null>(null);
 const formData = reactive({
   type: 'EVENT_TYPE_DAILY',
@@ -111,8 +116,8 @@ const formData = reactive({
 });
 
 const storeCities = computed(() => store.getters['cities/cities']);
-const optionsCities = computed(() =>
-  storeCities.value.map((city: City) => ({ label: city.name, value: city.id })),
+const optionsCities = computed(
+  () => storeCities.value?.map((city: City) => ({ label: city.name, value: city.id })) || [],
 );
 
 const rules = {
@@ -145,6 +150,21 @@ const validateForm = async () => {
     return true;
   } catch (err) {
     return false;
+  }
+};
+
+const loadCities = async (query?: string) => {
+  if (query && query.length <= 3) return;
+
+  try {
+    loadingCities.value = true;
+
+    await store.dispatch('cities/getCities', query);
+  } catch (error: unknown) {
+    console.log(error, 'error');
+    notifyError(error);
+  } finally {
+    loadingCities.value = false;
   }
 };
 

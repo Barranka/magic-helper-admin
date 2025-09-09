@@ -6,6 +6,7 @@ const API_URL_PUBLIC = 'https://magic.ginc.online/api/v1';
 
 const api = axios.create({
   baseURL: API_URL_PUBLIC,
+  timeout: 10000,
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
@@ -60,4 +61,6 @@ export const deleteEvent = (id: number) => api.delete(`/admin/events/${id}`);
 export const getEvents = (body: RequestBodyListEvent) => api.post('/public/list_events', body);
 
 // CITIES
-export const getCities = () => api.get('/public/cities');
+export const getCities = (query: string) => api.get('/public/cities', {
+  params: { 'filter.name_eq': query }
+});

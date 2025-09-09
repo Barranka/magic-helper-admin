@@ -9,7 +9,7 @@
         <EventCreateButton @openModal="openModal()" />
       </n-flex>
 
-      <n-layout v-if="true">
+      <n-layout>
         <n-card title="Фильтрация">
           <n-flex justify="space-between">
             <n-select
@@ -25,6 +25,8 @@
               filterable
               placeholder="Город события"
               clearable
+              :loading="loadingCities"
+              @search="loadCities"
             />
           </n-flex>
         </n-card>
@@ -140,6 +142,7 @@ const optionsType = [
 
 const events = ref(storeEvents);
 const isModalVisible = ref(false);
+const loadingCities = ref(false);
 const eventId = ref();
 const page = ref(0);
 const pageSize = ref(200);
@@ -167,13 +170,19 @@ const loadEvents = async () => {
   }
 };
 
-const loadCities = async () => {
+const loadCities = async (query?: string) => {
+  if (query && query.length <= 3) return;
+
   try {
-    await store.dispatch('cities/getCities');
+    loadingCities.value = true;
+
+    await store.dispatch('cities/getCities', query);
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
       notifyError(error);
     }
+  } finally {
+    loadingCities.value = false;
   }
 };
 

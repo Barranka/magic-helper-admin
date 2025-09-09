@@ -1,5 +1,6 @@
 import { getCities } from '../services/api';
 import { ActionContext } from 'vuex';
+import { RequestBodyListEvent } from "../types/events"
 
 export default {
   namespaced: true,
@@ -12,8 +13,9 @@ export default {
     },
   },
   actions: {
-    async getCities({ commit }: ActionContext<CitiesState, RootState>) {
-      const response = await getCities();
+    async getCities({ commit }: ActionContext<CitiesState, RootState>, query: string) {
+      console.log(query, 'body')
+      const response = await getCities(query);
 
       commit('SET_CITIES', response.data.cities);
 
