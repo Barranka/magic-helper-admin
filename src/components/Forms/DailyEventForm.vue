@@ -108,7 +108,7 @@ const formData = reactive({
   city_id: '',
   place: '',
   weekday: '',
-  time: null,
+  time: '19:30',
   map_url: '',
   format: null,
   price: '',

@@ -30,16 +30,25 @@
         </n-grid-item>
       </n-grid>
 
-      <n-form-item path="date" label="Дата и время турнира">
+      <n-form-item path="date" label="Дата турнира">
         <n-date-picker
-          v-model:value="dateProxy as any"
-          format="dd-MM-yyy HH:mm:ss"
-          type="datetime"
+          v-model:value="dateProxy"
+          type="date"
           clearable
-          placeholder="Дата и время"
+          format="dd-MM-yyyy"
+          placeholder="Дата"
           style="width: 100%"
-        >
-        </n-date-picker>
+        />
+      </n-form-item>
+
+      <n-form-item path="time" label="Время турнира">
+        <n-time-picker
+          v-model:formatted-value="formData.time"
+          format="HH:mm"
+          placeholder="Время турнира"
+          clearable
+          style="width: 100%"
+        />
       </n-form-item>
 
       <n-form-item path="format" label="Формат">
@@ -75,26 +84,27 @@ import {
   NForm,
   NFormItem,
   NDatePicker,
+  NTimePicker,
   FormInst,
 } from 'naive-ui';
 import { formatOptions } from './index';
-import { watch, computed, toRaw, ref, reactive } from 'vue';
+import { watch, computed, ref, reactive } from 'vue';
 import { useStore } from 'vuex';
 import { useNotify } from '../../composables/useNotify';
+import { parseISO, set, formatISO } from 'date-fns';
 
 const store = useStore();
 const { notifyError } = useNotify();
 
 const loadingCities = ref(false);
 const formRef = ref<FormInst | null>(null);
-const currentDate = ref<FormInst | null>(null);
 const formData = reactive({
   type: 'EVENT_TYPE_TOURNAMENT',
   name: '',
   banner: '',
   city_id: '',
   place: '',
-  date: null,
+  date: null as string | null,
   time: null,
   map_url: '',
   format: null,
@@ -108,23 +118,30 @@ const optionsCities = computed(() =>
   storeCities.value?.map((city: City) => ({ label: city.name, value: city.id })),
 );
 
-const dateProxy = computed<Date | null>({
-  get() {
+const dateProxy = computed<number | null>({
+  get(): number | null {
     if (!formData.date) return null;
-    const d = new Date(formData.date);
-    return d;
+    return new Date(formData.date).getTime();
   },
-  set(val: Date | number | null) {
+  set(val: number | null) {
     if (!val) {
       formData.date = null;
       return;
     }
 
-    const d = new Date(val);
+    const localDate = new Date(val);
+    // Извлекаем компоненты дня локально, но потом формируем UTC
+    const year = localDate.getFullYear();
+    const month = localDate.getMonth();
+    const day = localDate.getDate();
 
-    formData.date = d.toISOString() as any;
+    // Новый Date только в UTC
+    const utcDate = new Date(Date.UTC(year, month, day, 0, 0, 0, 0));
+
+    // Формируем ISO UTC с Z
+    formData.date = utcDate.toISOString();
   },
-}) as unknown as Date;
+});
 
 const rules = {
   name: {
@@ -142,7 +159,7 @@ const rules = {
 watch(
   formData,
   (newVal) => {
-    store.commit('updateEventData', toRaw(newVal));
+    store.commit('updateEventData', newVal);
   },
   { deep: true },
 );

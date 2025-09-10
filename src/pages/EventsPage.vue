@@ -104,7 +104,7 @@ const storeCities = computed(() => store.getters['cities/cities']);
 const isLoading = computed(() => store.getters.getLoading);
 const pageCount = computed(() => Math.ceil(events.value.length / pageSize.value));
 const optionsCities = computed(() =>
-  storeCities.value.map((city: City) => ({ label: city.name, value: city.id })),
+  storeCities.value?.map((city: City) => ({ label: city.name, value: city.id })),
 );
 
 const pageSizes = [
@@ -255,6 +255,12 @@ watch(
   },
   { deep: true },
 );
+
+watch(creatingType, (newVal, oldVal) => {
+  if (newVal != oldVal && storeMode.value === 'save') {
+    store.commit('updateEventData', {});
+  }
+});
 
 loadEvents();
 loadCities();
