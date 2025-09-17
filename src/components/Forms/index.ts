@@ -12,4 +12,5 @@ export const formatOptions = [
   { value: 'FORMAT_DRAFT', label: FormatEnum['FORMAT_DRAFT'] },
   { value: 'FORMAT_DUELEDH', label: FormatEnum['FORMAT_DUELEDH'] },
   { value: 'FORMAT_HERITAGE', label: FormatEnum['FORMAT_HERITAGE'] },
+  { value: 'FORMAT_SEALED', label: FormatEnum['FORMAT_SEALED'] },
 ];
